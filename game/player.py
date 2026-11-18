@@ -23,3 +23,17 @@ class Player(pygame.sprite.Sprite):
     def shoot(self):
         """Заготовка. Заполнит Настя."""
         pass
+
+    def handle_input(self):
+        keys = pygame.key.get_pressed()
+        self.vel_x = 0
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.vel_x = -PLAYER_SPEED
+            self.facing = "left"
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.vel_x = PLAYER_SPEED
+            self.facing = "right"
+
+    def update(self, platforms):
+        self.handle_input()
+        self.rect.x += self.vel_x
