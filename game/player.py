@@ -33,7 +33,34 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.vel_x = PLAYER_SPEED
             self.facing = "right"
+        if (keys[pygame.K_UP] or keys[pygame.K_w]) and self.on_ground:
+            self.jump()
+
+    def jump(self):
+        self.vel_y = JUMP_SPEED
+        self.on_ground = False
+
+    def move_and_collide(self, platforms):
+        # 1. Двигаем по X и разбираемся со стенами
+        self.rect.x += self.vel_x
+        for platform in pygame.sprite.spritecollide(self, platforms, False):
+            if self.vel_x > 0:
+                self.rect.right = platform.rect.left
+            elif self.vel_x < 0:
+                self.rect.left = platform.rect.right
+
+        # 2. Гравитация и движение по Y
+        self.vel_y = min(self.vel_y + GRAVITY, MAX_FALL_SPEED)
+        self.rect.y += self.vel_y
+        self.on_ground = False
+        for platform in pygame.sprite.spritecollide(self, platforms, False):
+            if self.vel_y > 0:            # падаем на платформу
+                self.rect.bottom = platform.rect.top
+                self.on_ground = True
+            elif self.vel_y < 0:          # ударились головой
+                self.rect.top = platform.rect.bottom
+            self.vel_y = 0
 
     def update(self, platforms):
         self.handle_input()
-        self.rect.x += self.vel_x
+        self.move_and_collide(platforms)
