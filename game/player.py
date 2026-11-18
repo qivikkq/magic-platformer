@@ -61,6 +61,13 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = platform.rect.bottom
             self.vel_y = 0
 
+    def respawn(self):
+        self.rect.topleft = self.start_pos
+        self.vel_x = 0
+        self.vel_y = 0
+
     def update(self, platforms):
         self.handle_input()
         self.move_and_collide(platforms)
+        if self.rect.top > FALL_LIMIT:
+            self.respawn()
