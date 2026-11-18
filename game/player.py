@@ -1,0 +1,25 @@
+import pygame
+
+from game.settings import (
+    PLAYER_SIZE, PLAYER_COLOR, PLAYER_SPEED,
+    GRAVITY, JUMP_SPEED, MAX_FALL_SPEED, FALL_LIMIT,
+)
+
+
+class Player(pygame.sprite.Sprite):
+    """Героиня: движение, гравитация, прыжок, столкновения с платформами."""
+
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface(PLAYER_SIZE)
+        self.image.fill(PLAYER_COLOR)
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.start_pos = (x, y)
+        self.vel_x = 0
+        self.vel_y = 0
+        self.on_ground = False
+        self.facing = "right"   # куда смотрит: "right" или "left"
+
+    def shoot(self):
+        """Заготовка. Заполнит Настя."""
+        pass
