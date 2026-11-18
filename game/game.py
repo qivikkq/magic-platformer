@@ -1,0 +1,57 @@
+import sys
+
+import pygame
+
+from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE
+from game.states import GameState
+
+
+class Game:
+    """Главный класс: окно, игровой цикл, смена состояний."""
+
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption(TITLE)
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(None, 48)
+        self.running = True
+        self.state = GameState.RULES
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            # ВРЕМЕННО: цифры 1-3 переключают состояния для проверки.
+            # Удалим, когда появятся настоящие кнопки.
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    self.state = GameState.RULES
+                elif event.key == pygame.K_2:
+                    self.state = GameState.PLAYING
+                elif event.key == pygame.K_3:
+                    self.state = GameState.RESULT
+
+    def update(self):
+        # Здесь позже появится логика каждого состояния
+        if self.state == GameState.RULES:
+            pass
+        elif self.state == GameState.PLAYING:
+            pass
+        elif self.state == GameState.RESULT:
+            pass
+
+    def draw(self):
+        self.screen.fill(BACKGROUND)
+        text = self.font.render(self.state.name, True, WHITE)
+        self.screen.blit(text, (20, 20))
+        pygame.display.flip()
+
+    def run(self):
+        while self.running:
+            self.handle_events()
+            self.update()
+            self.draw()
+            self.clock.tick(FPS)
+        pygame.quit()
+        sys.exit()
