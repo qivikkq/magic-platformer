@@ -5,6 +5,7 @@ import pygame
 from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE
 from game.states import GameState
 from game.ui.rules_popup import RulesPopup
+from game.player import Player
 
 
 class Game:
@@ -19,6 +20,15 @@ class Game:
         self.running = True
         self.state = GameState.RULES
         self.rules_popup = RulesPopup()
+        self.player = Player(100, 400)
+        # ВРЕМЕННО: тестовые платформы, пока нет Level
+        self.platforms = pygame.sprite.Group()
+        for x, y, w, h in [(0, 500, 960, 40), (200, 400, 150, 20), (450, 320, 150, 20)]:
+            platform = pygame.sprite.Sprite()
+            platform.rect = pygame.Rect(x, y, w, h)
+            platform.image = pygame.Surface((w, h))
+            platform.image.fill((90, 140, 90))
+            self.platforms.add(platform)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -43,12 +53,13 @@ class Game:
         if self.state == GameState.RULES:
             pass
         elif self.state == GameState.PLAYING:
-            pass
+            self.player.update(self.platforms)
         elif self.state == GameState.RESULT:
             pass
 
     def draw(self):
         self.screen.fill(BACKGROUND)
+
         # text = self.font.render(self.state.name, True, WHITE)
         # self.screen.blit(text, (20, 20))
         if self.state == GameState.RULES:
@@ -61,6 +72,13 @@ class Game:
         elif self.state == GameState.RESULT:
             text = self.font.render("RESULT", True, WHITE)
             self.screen.blit(text, (20, 20))
+            
+        if self.state == GameState.PLAYING:
+            self.platforms.draw(self.screen)
+            self.screen.blit(self.player.image, self.player.rect)
+        text = self.font.render(self.state.name, True, WHITE)
+        self.screen.blit(text, (20, 20))
+
         pygame.display.flip()
 
     def run(self):
