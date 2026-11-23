@@ -4,9 +4,7 @@ import pygame
 
 from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE
 from game.states import GameState
-from game.ui.rules_popup import RulesPopup
 from game.player import Player
-
 
 class Game:
     """Главный класс: окно, игровой цикл, смена состояний."""
@@ -19,7 +17,6 @@ class Game:
         self.font = pygame.font.Font(None, 48)
         self.running = True
         self.state = GameState.RULES
-        self.rules_popup = RulesPopup()
         self.player = Player(100, 400)
         # ВРЕМЕННО: тестовые платформы, пока нет Level
         self.platforms = pygame.sprite.Group()
@@ -34,10 +31,6 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            elif self.state == GameState.RULES:
-                if self.rules_popup.handle_event(event):
-                    self.state = GameState.PLAYING
-
             # ВРЕМЕННО: цифры 1-3 переключают состояния для проверки.
             # Удалим, когда появятся настоящие кнопки.
             elif event.type == pygame.KEYDOWN:
@@ -59,26 +52,11 @@ class Game:
 
     def draw(self):
         self.screen.fill(BACKGROUND)
-
-        # text = self.font.render(self.state.name, True, WHITE)
-        # self.screen.blit(text, (20, 20))
-        if self.state == GameState.RULES:
-            self.rules_popup.draw(self.screen)
-
-        elif self.state == GameState.PLAYING:
-            text = self.font.render("PLAYING", True, WHITE)
-            self.screen.blit(text, (20, 20))
-
-        elif self.state == GameState.RESULT:
-            text = self.font.render("RESULT", True, WHITE)
-            self.screen.blit(text, (20, 20))
-            
         if self.state == GameState.PLAYING:
             self.platforms.draw(self.screen)
             self.screen.blit(self.player.image, self.player.rect)
         text = self.font.render(self.state.name, True, WHITE)
         self.screen.blit(text, (20, 20))
-
         pygame.display.flip()
 
     def run(self):

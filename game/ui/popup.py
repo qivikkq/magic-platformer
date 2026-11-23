@@ -1,5 +1,18 @@
 import pygame
+
 from game.ui.button import Button
+from game.settings import (
+    WIDTH,
+    HEIGHT,
+    UI_TEXT_COLOR,
+    UI_PANEL_COLOR,
+    UI_BORDER_COLOR,
+    UI_SHADOW_COLOR,
+    TITLE_FONT_PATH,
+    TEXT_FONT_PATH,
+    TITLE_FONT_SIZE,
+    TEXT_FONT_SIZE
+)
 
 
 class Popup:
@@ -7,58 +20,66 @@ class Popup:
         self.title = title
         self.text_lines = text_lines
 
-        self.title_font = pygame.font.Font(None, 48)
-        self.text_font = pygame.font.Font(None, 32)
-
-        self.rect = pygame.Rect(0, 0, 600, 420)
-
-        self.button = Button(
-            pygame.Rect(0, 0, 200, 55),
-            button_text
+        # Настраиваем шрифты
+        self.title_font = pygame.font.Font(
+            str(TITLE_FONT_PATH), TITLE_FONT_SIZE
         )
+        self.text_font = pygame.font.Font(
+            str(TEXT_FONT_PATH), TEXT_FONT_SIZE
+        )
+
+        # Создаём окно по центру экрана
+        self.rect = pygame.Rect(0, 0, 760, 420)
+        self.rect.center = (WIDTH // 2, HEIGHT // 2)
+
+        # Создаём кнопку
+        button_rect = pygame.Rect(0, 0, 220, 60)
+        button_rect.center = (
+            self.rect.centerx,
+            self.rect.bottom - 55
+        )
+
+        self.button = Button(button_rect, button_text)
 
     def draw(self, screen):
         # Затемняем игровой экран
         overlay = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 150))
+        overlay.fill((0, 0, 0, 170))
         screen.blit(overlay, (0, 0))
 
-        # Рисуем окно
-        self.rect.center = screen.get_rect().center
-        pygame.draw.rect(screen, (240, 240, 240), self.rect)
-        pygame.draw.rect(screen, (30, 30, 30), self.rect, 3)
+        # Рисуем тень окна
+        shadow_rect = self.rect.move(8, 8)
+        pygame.draw.rect(screen, UI_SHADOW_COLOR, shadow_rect)
+
+        # Рисуем основное окно и его границу
+        pygame.draw.rect(screen, UI_PANEL_COLOR, self.rect)
+        pygame.draw.rect(screen, UI_BORDER_COLOR, self.rect, 3)
 
         # Рисуем заголовок
         title_surface = self.title_font.render(
-            self.title, True, (30, 30, 30)
+            self.title, True, UI_TEXT_COLOR
         )
         title_rect = title_surface.get_rect(
-            center=(self.rect.centerx, self.rect.y + 55)
+            center=(self.rect.centerx, self.rect.y + 65)
         )
         screen.blit(title_surface, title_rect)
 
-        # Рисуем строки текста
-        y = self.rect.y + 120
+        # Рисуем основной текст
+        y = self.rect.y + 145
 
         for line in self.text_lines:
             text_surface = self.text_font.render(
-                line, True, (30, 30, 30)
+                line, True, UI_TEXT_COLOR
             )
             text_rect = text_surface.get_rect(
                 center=(self.rect.centerx, y)
             )
             screen.blit(text_surface, text_rect)
-            y += 40
+            y += 38
 
-        # Размещаем и рисуем кнопку
-        self.button.rect.center = (
-            self.rect.centerx,
-            self.rect.bottom - 55
-        )
+        # Обновляем состояние кнопки и рисуем её
+        self.button.update(pygame.mouse.get_pos())
         self.button.draw(screen)
 
     def handle_event(self, event):
-        if self.button.is_clicked(event):
-            return True
-
-        return False
+        return self.button.is_clicked(event)
