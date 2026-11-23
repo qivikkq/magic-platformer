@@ -5,6 +5,7 @@ import pygame
 from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE
 from game.states import GameState
 from game.player import Player
+from game.ui.rules_popup import RulesPopup
 
 class Game:
     """Главный класс: окно, игровой цикл, смена состояний."""
@@ -17,7 +18,9 @@ class Game:
         self.font = pygame.font.Font(None, 48)
         self.running = True
         self.state = GameState.RULES
+        self.rules_popup = RulesPopup()
         self.player = Player(100, 400)
+
         # ВРЕМЕННО: тестовые платформы, пока нет Level
         self.platforms = pygame.sprite.Group()
         for x, y, w, h in [(0, 500, 960, 40), (200, 400, 150, 20), (450, 320, 150, 20)]:
@@ -31,6 +34,10 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+
+            elif (self.state == GameState.RULES and self.rules_popup.handle_event(event)):
+                self.state = GameState.PLAYING
+
             # ВРЕМЕННО: цифры 1-3 переключают состояния для проверки.
             # Удалим, когда появятся настоящие кнопки.
             elif event.type == pygame.KEYDOWN:
@@ -52,7 +59,10 @@ class Game:
 
     def draw(self):
         self.screen.fill(BACKGROUND)
-        if self.state == GameState.PLAYING:
+
+        if self.state == GameState.RULES:
+            self.rules_popup.draw(self.screen)
+        elif self.state == GameState.PLAYING:
             self.platforms.draw(self.screen)
             self.screen.blit(self.player.image, self.player.rect)
         text = self.font.render(self.state.name, True, WHITE)
