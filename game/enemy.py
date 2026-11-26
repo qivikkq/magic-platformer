@@ -28,3 +28,21 @@ class Enemy(pygame.sprite.Sprite):
             return True
 
         return False
+
+
+    def _has_ground(self, rect, platforms):
+        """Проверка: есть ли платформа под передним краем врага"""
+
+        x = rect.right - 1 if self.direction > 0 else rect.left
+        probe = pygame.Rect(x, rect.bottom, 1, 1)
+        return any(p.rect.colliderect(probe) for p in platforms)
+
+
+    def update(self, platforms):
+        next_rect = self.rect.move(self.speed * self.direction, 0)
+        hits_wall = any(p.rect.colliderect(next_rect) for p in platforms)
+
+        if hits_wall or not self._has_ground(next_rect, platforms):
+            self.direction *= -1
+        else:
+            self.rect = next_rect
