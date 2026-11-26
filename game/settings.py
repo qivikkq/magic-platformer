@@ -42,3 +42,5 @@ GRAVITY = 1
 JUMP_SPEED = -16
 MAX_FALL_SPEED = 16
 FALL_LIMIT = HEIGHT + 200   # ниже этой линии героиня возрождается
+
+CAMERA_DEADZONE = 200
