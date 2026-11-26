@@ -1,11 +1,14 @@
 import sys
-
 import pygame
 
 from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE
 from game.states import GameState
 from game.player import Player
 from game.ui.rules_popup import RulesPopup
+from game.level import Level
+from game.stats import Stats
+from game.ui.result_popup import ResultPopup
+
 
 class Game:
     """Главный класс: окно, игровой цикл, смена состояний."""
@@ -21,50 +24,59 @@ class Game:
         self.rules_popup = RulesPopup()
         self.player = Player(100, 400)
 
-        # ВРЕМЕННО: тестовые платформы, пока нет Level
-        self.platforms = pygame.sprite.Group()
-        for x, y, w, h in [(0, 500, 960, 40), (200, 400, 150, 20), (450, 320, 150, 20)]:
-            platform = pygame.sprite.Sprite()
-            platform.rect = pygame.Rect(x, y, w, h)
-            platform.image = pygame.Surface((w, h))
-            platform.image.fill((90, 140, 90))
-            self.platforms.add(platform)
+        self.level = Level.load('levels/level1.txt')
+        self.platforms = self.level.platforms
+
+        self.stats = Stats()
+        self.result_popup = ResultPopup(self.stats)
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
 
-            elif (self.state == GameState.RULES and self.rules_popup.handle_event(event)):
-                self.state = GameState.PLAYING
+            elif self.state == GameState.RULES:
+                if self.rules_popup.handle_event(event):
+                    self.state = GameState.PLAYING
+                    self.stats.start_timer()
 
-            # ВРЕМЕННО: цифры 1-3 переключают состояния для проверки.
-            # Удалим, когда появятся настоящие кнопки.
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     self.state = GameState.RULES
                 elif event.key == pygame.K_2:
                     self.state = GameState.PLAYING
+                    self.stats.start_timer()
                 elif event.key == pygame.K_3:
                     self.state = GameState.RESULT
 
+            elif self.state == GameState.RESULT:
+                if self.result_popup.handle_event(event):
+                    pygame.quit()
+                    sys.exit()
+
     def update(self):
-        # Здесь позже появится логика каждого состояния
-        if self.state == GameState.RULES:
-            pass
-        elif self.state == GameState.PLAYING:
+        if self.state == GameState.PLAYING:
             self.player.update(self.platforms)
-        elif self.state == GameState.RESULT:
-            pass
+
+            total_enemies = getattr(self.level, 'total_enemies', 0)
+            if total_enemies > 0 and self.stats.all_enemies_dead(total_enemies):
+                self.state = GameState.RESULT
 
     def draw(self):
         self.screen.fill(BACKGROUND)
 
         if self.state == GameState.RULES:
+            self.platforms.draw(self.screen)
             self.rules_popup.draw(self.screen)
+
         elif self.state == GameState.PLAYING:
             self.platforms.draw(self.screen)
             self.screen.blit(self.player.image, self.player.rect)
+
+        elif self.state == GameState.RESULT:
+            self.platforms.draw(self.screen)
+            self.result_popup.draw(self.screen)
+
         text = self.font.render(self.state.name, True, WHITE)
         self.screen.blit(text, (20, 20))
         pygame.display.flip()
