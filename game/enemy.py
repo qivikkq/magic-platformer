@@ -1,6 +1,7 @@
 import pygame
 
-from game.settings import ENEMY_SIZE, ENEMY_COLOR, ENEMY_SPEED, ENEMY_HP
+from game.settings import (ENEMY_SIZE, ENEMY_COLOR, ENEMY_SPEED, ENEMY_HP,
+                           STRONG_ENEMY_COLOR, STRONG_ENEMY_HP, STRONG_ENEMY_SPEED)
 
 class Enemy(pygame.sprite.Sprite):
     """Обычный враг: ходит по платформе туда-сюда, гибнет от одного попадания"""
@@ -46,3 +47,10 @@ class Enemy(pygame.sprite.Sprite):
             self.direction *= -1
         else:
             self.rect = next_rect
+
+
+class StrongEnemy(Enemy):
+    """Сильный враг: быстрее и выдерживает два попадания"""
+
+    def __init__(self, x, y):
+        super().__init__(x, y, hp=STRONG_ENEMY_HP, speed=STRONG_ENEMY_SPEED, color=STRONG_ENEMY_COLOR)
