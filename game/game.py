@@ -58,6 +58,7 @@ class Game:
     def update(self):
         if self.state == GameState.PLAYING:
             self.player.update(self.level.platforms)
+            self.level.enemies.update(self.level.platforms)
             self.camera.update(self.player)
 
 
@@ -69,6 +70,10 @@ class Game:
         elif self.state == GameState.PLAYING:
             for platform in self.level.platforms:
                 self.screen.blit(platform.image, self.camera.apply(platform))
+
+            for enemy in self.level.enemies:
+                self.screen.blit(enemy.image, self.camera.apply(enemy))
+
             self.screen.blit(self.player.image, self.camera.apply(self.player))
 
         text = self.font.render(self.state.name, True, WHITE)
