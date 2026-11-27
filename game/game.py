@@ -59,6 +59,8 @@ class Game:
         if self.state == GameState.PLAYING:
             self.player.update(self.level.platforms)
             self.level.enemies.update(self.level.platforms)
+            if pygame.sprite.spritecollide(self.player, self.level.enemies, False):
+                self.player.respawn()
             self.camera.update(self.player)
 
 
