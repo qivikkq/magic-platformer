@@ -1,10 +1,13 @@
 import sys
+from sys import platform
 
 import pygame
 
-from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE
+from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE, BASE_DIR, TILE_SIZE
 from game.states import GameState
 from game.player import Player
+from game.level import Level
+from game.camera import Camera
 from game.ui.rules_popup import RulesPopup
 
 class Game:
@@ -14,21 +17,25 @@ class Game:
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption(TITLE)
+
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 48)
+
         self.running = True
         self.state = GameState.RULES
-        self.rules_popup = RulesPopup()
-        self.player = Player(100, 400)
 
-        # ВРЕМЕННО: тестовые платформы, пока нет Level
-        self.platforms = pygame.sprite.Group()
-        for x, y, w, h in [(0, 500, 960, 40), (200, 400, 150, 20), (450, 320, 150, 20)]:
-            platform = pygame.sprite.Sprite()
-            platform.rect = pygame.Rect(x, y, w, h)
-            platform.image = pygame.Surface((w, h))
-            platform.image.fill((90, 140, 90))
-            self.platforms.add(platform)
+        self.rules_popup = RulesPopup()
+
+        # Загрузка уровня
+        self.level = Level()
+        self.level.load(BASE_DIR / "levels" / "level1.txt")
+
+        # Загрузка игрока в точке Р
+        self.player = Player(*self.level.player_start)
+
+        # Создаём камеру
+        self.camera = Camera(self.level.width * TILE_SIZE, self.level.height * TILE_SIZE)
+
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -49,13 +56,10 @@ class Game:
                     self.state = GameState.RESULT
 
     def update(self):
-        # Здесь позже появится логика каждого состояния
-        if self.state == GameState.RULES:
-            pass
-        elif self.state == GameState.PLAYING:
-            self.player.update(self.platforms)
-        elif self.state == GameState.RESULT:
-            pass
+        if self.state == GameState.PLAYING:
+            self.player.update(self.level.platforms)
+            self.camera.update(self.player)
+
 
     def draw(self):
         self.screen.fill(BACKGROUND)
@@ -63,8 +67,10 @@ class Game:
         if self.state == GameState.RULES:
             self.rules_popup.draw(self.screen)
         elif self.state == GameState.PLAYING:
-            self.platforms.draw(self.screen)
-            self.screen.blit(self.player.image, self.player.rect)
+            for platform in self.level.platforms:
+                self.screen.blit(platform.image, self.camera.apply(platform))
+            self.screen.blit(self.player.image, self.camera.apply(self.player))
+
         text = self.font.render(self.state.name, True, WHITE)
         self.screen.blit(text, (20, 20))
         pygame.display.flip()
