@@ -2,17 +2,19 @@ from pathlib import Path
 
 import pygame
 
-from game.settings import TILE_SIZE
+from game.settings import TILE_SIZE, ENEMY_SIZE
 from game.tiles import Platform
+from game.enemy import Enemy, StrongEnemy
 
 
 class Level:
     """Загрузка карты и создание объектов уровня."""
 
-    ALLOWED_SYMBOLS = {"#", ".", "P"}
+    ALLOWED_SYMBOLS = {"#", ".", "P", "E", "S"}
 
     def __init__(self):
         self.platforms = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
         self.player_start = None
         self.width = 0
         self.height = 0
@@ -63,6 +65,7 @@ class Level:
             raise ValueError("На карте должна быть ровно одна точка появления игрока")
 
         self.platforms.empty()
+        self.enemies.empty()
 
         for row, line in enumerate(rows):
             for column, symbol in enumerate(line):
@@ -71,6 +74,14 @@ class Level:
 
                 if symbol == "#":
                     self.platforms.add(Platform(x, y))
+
+                elif symbol == "E":
+                    enemy_y = y + TILE_SIZE - ENEMY_SIZE[1]
+                    self.enemies.add(Enemy(x, enemy_y))
+
+                elif symbol == "S":
+                    enemy_y = y + TILE_SIZE - ENEMY_SIZE[1]
+                    self.enemies.add(StrongEnemy(x, enemy_y))
 
         column, row = player_positions[0]
         self.player_start = (

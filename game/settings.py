@@ -42,3 +42,17 @@ GRAVITY = 1
 JUMP_SPEED = -16
 MAX_FALL_SPEED = 16
 FALL_LIMIT = HEIGHT + 200   # ниже этой линии героиня возрождается
+
+# Враги
+ENEMY_SIZE = (30, 30)
+ENEMY_COLOR = (220, 60, 90)
+ENEMY_SPEED = 2
+ENEMY_HP = 1
+
+STRONG_ENEMY_COLOR = (150, 30, 180)
+STRONG_ENEMY_SPEED = 3
+STRONG_ENEMY_HP = 2
+
+# Скорость снаряда
+PROJECTILE_SPEED = 10
+SHOOT_COOLDOWN = 500  # Задержка между выстрелами в миллисекундах
