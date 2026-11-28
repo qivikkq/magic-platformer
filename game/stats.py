@@ -1,26 +1,33 @@
 import time
 
+
 class Stats:
+    """Статистика прохождения уровня."""
+
     def __init__(self):
         self.kills = 0
         self.mushrooms = 0
-        self._start_time = None
-        self._elapsed = 0.0
+        self.start_time = None
 
     def start_timer(self):
-        self._start_time = time.time()
-        self._elapsed = 0.0
+        """Запускает таймер прохождения уровня."""
+        self.start_time = time.time()
 
     def add_kill(self):
+        """Увеличивает количество убитых врагов."""
         self.kills += 1
 
     def add_mushroom(self):
+        """Увеличивает количество собранных грибов."""
         self.mushrooms += 1
 
     def all_enemies_dead(self, total):
+        """Проверяет, все ли враги убиты."""
         return self.kills >= total
 
     def elapsed_seconds(self):
-        if self._start_time is None:
-            return self._elapsed
-        return time.time() - self._start_time
+        """Возвращает время прохождения в секундах."""
+        if self.start_time is None:
+            return 0
+
+        return int(time.time() - self.start_time)

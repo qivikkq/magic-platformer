@@ -1,25 +1,46 @@
 from game.stats import Stats
 
-def test_counters():
-    s = Stats()
-    assert s.kills == 0
-    assert s.mushrooms == 0
-    s.add_kill()
-    s.add_kill()
-    s.add_mushroom()
-    assert s.kills == 2
-    assert s.mushrooms == 1
+
+def test_stats_initial_values():
+    stats = Stats()
+
+    assert stats.kills == 0
+    assert stats.mushrooms == 0
+    assert stats.start_time is None
+
+
+def test_add_kill():
+    stats = Stats()
+
+    stats.add_kill()
+    stats.add_kill()
+
+    assert stats.kills == 2
+
+
+def test_add_mushroom():
+    stats = Stats()
+
+    stats.add_mushroom()
+
+    assert stats.mushrooms == 1
+
 
 def test_all_enemies_dead():
-    s = Stats()
-    assert not s.all_enemies_dead(3)
-    s.add_kill()
-    s.add_kill()
-    s.add_kill()
-    assert s.all_enemies_dead(3)
+    stats = Stats()
 
-def test_timer():
-    s = Stats()
-    assert s.elapsed_seconds() >= 0.0
-    s.start_timer()
-    assert s.elapsed_seconds() >= 0.0
+    stats.add_kill()
+    stats.add_kill()
+
+    assert stats.all_enemies_dead(2)
+    assert not stats.all_enemies_dead(3)
+
+
+def test_elapsed_seconds():
+    stats = Stats()
+
+    assert stats.elapsed_seconds() == 0
+
+    stats.start_timer()
+
+    assert stats.elapsed_seconds() >= 0
