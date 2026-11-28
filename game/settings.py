@@ -55,3 +55,4 @@ STRONG_ENEMY_HP = 2
 
 # Скорость снаряда
 PROJECTILE_SPEED = 10
+SHOOT_COOLDOWN = 500  # Задержка между выстрелами в миллисекундах

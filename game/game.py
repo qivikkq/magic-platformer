@@ -1,9 +1,8 @@
 import sys
-from sys import platform
 
 import pygame
 
-from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE, BASE_DIR, TILE_SIZE
+from game.settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND, WHITE, BASE_DIR, TILE_SIZE, SHOOT_COOLDOWN
 from game.states import GameState
 from game.player import Player
 from game.level import Level
@@ -34,6 +33,7 @@ class Game:
         self.player = Player(*self.level.player_start)
 
         self.projectiles = pygame.sprite.Group()
+        self.last_shot_time = 0
 
         # Создаём камеру
         self.camera = Camera(self.level.width * TILE_SIZE, self.level.height * TILE_SIZE)
@@ -57,16 +57,39 @@ class Game:
                 elif event.key == pygame.K_3:
                     self.state = GameState.RESULT
                 elif event.key == pygame.K_SPACE and self.state == GameState.PLAYING:
-                    projectile = self.player.shoot()
-                    self.projectiles.add(projectile)
+                    current_time = pygame.time.get_ticks()
+
+                    if current_time - self.last_shot_time >= SHOOT_COOLDOWN:
+                        projectile = self.player.shoot()
+                        self.projectiles.add(projectile)
+                        self.last_shot_time = current_time
 
     def update(self):
         if self.state == GameState.PLAYING:
             self.player.update(self.level.platforms)
             self.level.enemies.update(self.level.platforms)
-            self.projectiles.update(self.level.platforms, self.level.enemies)
+
+            # Обновление снарядов
+            self.projectiles.update()
+
+            # Сначала проверяем попадания по врагам
+            hits = pygame.sprite.groupcollide(
+                self.projectiles, self.level.enemies, True, False
+            )
+
+            for projectile, enemies_hit in hits.items():
+                if enemies_hit[0].take_hit():
+                    pass  # Позже здесь будет self.stats.add_kill()
+
+            # Затем проверяем столкновения с платформами
+            pygame.sprite.groupcollide(
+                self.projectiles, self.level.platforms, True, False
+            )
+
+            # Столкновение игрока с врагами
             if pygame.sprite.spritecollide(self.player, self.level.enemies, False):
                 self.player.respawn()
+
             self.camera.update(self.player)
 
 

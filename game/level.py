@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pygame
 
-from game import enemy
 from game.settings import TILE_SIZE, ENEMY_SIZE
 from game.tiles import Platform
 from game.enemy import Enemy, StrongEnemy
