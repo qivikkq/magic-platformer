@@ -4,6 +4,7 @@ from game.settings import (
     PLAYER_SIZE, PLAYER_COLOR, PLAYER_SPEED,
     GRAVITY, JUMP_SPEED, MAX_FALL_SPEED, FALL_LIMIT,
 )
+from game.projectile import Projectile
 
 
 class Player(pygame.sprite.Sprite):
@@ -21,8 +22,15 @@ class Player(pygame.sprite.Sprite):
         self.facing = "right"   # куда смотрит: "right" или "left"
 
     def shoot(self):
-        """Заготовка. Заполнит Настя."""
-        pass
+        """Создаёт магический снаряд в направлении взгляда героя"""
+
+        direction = 1 if self.facing == "right" else -1
+
+        x = self.rect.right if direction > 0 else self.rect.left
+        y = self.rect.centery
+
+        return Projectile(x, y, direction)
+
 
     def handle_input(self):
         keys = pygame.key.get_pressed()

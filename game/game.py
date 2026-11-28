@@ -33,6 +33,8 @@ class Game:
         # Загрузка игрока в точке Р
         self.player = Player(*self.level.player_start)
 
+        self.projectiles = pygame.sprite.Group()
+
         # Создаём камеру
         self.camera = Camera(self.level.width * TILE_SIZE, self.level.height * TILE_SIZE)
 
@@ -54,11 +56,15 @@ class Game:
                     self.state = GameState.PLAYING
                 elif event.key == pygame.K_3:
                     self.state = GameState.RESULT
+                elif event.key == pygame.K_SPACE and self.state == GameState.PLAYING:
+                    projectile = self.player.shoot()
+                    self.projectiles.add(projectile)
 
     def update(self):
         if self.state == GameState.PLAYING:
             self.player.update(self.level.platforms)
             self.level.enemies.update(self.level.platforms)
+            self.projectiles.update(self.level.platforms, self.level.enemies)
             if pygame.sprite.spritecollide(self.player, self.level.enemies, False):
                 self.player.respawn()
             self.camera.update(self.player)
@@ -75,6 +81,9 @@ class Game:
 
             for enemy in self.level.enemies:
                 self.screen.blit(enemy.image, self.camera.apply(enemy))
+
+            for projectile in self.projectiles:
+                self.screen.blit(projectile.image, self.camera.apply(projectile))
 
             self.screen.blit(self.player.image, self.camera.apply(self.player))
 
