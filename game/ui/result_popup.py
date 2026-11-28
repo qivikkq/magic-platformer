@@ -1,17 +1,21 @@
-import pygame
-
-from game.settings import WIDTH, HEIGHT, WHITE
 from game.ui.popup import Popup
 
-class ResultPopup(Popup):
-    def __init__(self, stats):
-        kills = stats.kills
-        mushrooms = stats.mushrooms
-        seconds = int(stats.elapsed_seconds())
 
-        lines = [
-            f"Врагов убито: {kills}",
-            f"Грибов собрано: {mushrooms}",
-            f"Время: {seconds} c",
+class ResultPopup(Popup):
+    """Окно с результатами прохождения уровня."""
+
+    def __init__(self, kills, mushrooms, seconds):
+        title = 'Результаты'
+
+        minutes = seconds // 60
+        remaining_seconds = seconds % 60
+
+        text_lines = [
+            f'Убито врагов: {kills}',
+            f'Собрано грибов: {mushrooms}',
+            f'Время прохождения: {minutes:02}:{remaining_seconds:02}'
         ]
-        super().__init__("Результат", lines, "Выход")
+
+        button_text = 'ВЫХОД'
+
+        super().__init__(title, text_lines, button_text)
